@@ -11,56 +11,89 @@ public class PlayerMovement : MonoBehaviour {
 	private Rigidbody rb;
 	bool rotate = false;
 	public float crouch = 0.5f;
+	public GameObject thisCam;
+	public GameObject leftArrow;
+	public GameObject rightArrow;
 	
 	public MeshRenderer[] death;
 	public BoxCollider[] death2;
 	public Rigidbody[] death3;
+	public bool Controllertime = true;
 	/*void Start()
     {
         rb = GetComponent<Rigidbody> ();
     }*/
 	
 	// Update is called once per frame
+
+	void Start()
+	{
+		rightArrow.GetComponent<MeshRenderer> ().material.color = Color.clear;
+		leftArrow.GetComponent<MeshRenderer> ().material.color = Color.clear;
+	}
 	void Update () 
 	{
-		if (Input.GetKeyDown (KeyCode.DownArrow)) 
+
+		if (StaticVar.CamStop == true)
 		{
-			transform.localScale = new Vector3(transform.localScale.x, crouch, transform.localScale.z);
+			Controllertime = false;
+			StartCoroutine (Brawlerstage ());
 		}
-		if (Input.GetKeyUp (KeyCode.DownArrow)) 
-		{
-			transform.localScale = new Vector3(transform.localScale.x, 0.75f, transform.localScale.z);
-		}
+
+
+
+
+		if ( Controllertime == true) {
+			if (Input.GetKeyDown (KeyCode.DownArrow)) {
+				transform.localScale = new Vector3 (transform.localScale.x, crouch, transform.localScale.z);
+			}
+			if (Input.GetKeyUp (KeyCode.DownArrow)) {
+				transform.localScale = new Vector3 (transform.localScale.x, 0.75f, transform.localScale.z);
+			}
 		
+			if (Input.GetKeyDown (KeyCode.RightArrow) && rotate == true) {
+				transform.RotateAround (transform.position, transform.up, 180f);
+				rotate = false;
+			}
+			if (Input.GetKeyDown (KeyCode.LeftArrow) && rotate == false) {
+				transform.RotateAround (transform.position, transform.up, 180f);
+				rotate = true;
+			}
 		
+			var move = new Vector3 (Input.GetAxis ("Horizontal"), 0);
+			GetComponent<Rigidbody> ().position += move * speed * Time.deltaTime;
 		
-		if (Input.GetKeyDown (KeyCode.RightArrow) && rotate == true) 
+			if (Input.GetKeyDown (KeyCode.Space) && jumpCount < maxJump) {
+				GetComponent<Rigidbody> ().velocity += Vector3.up * jumpSpeed;
+				jumpCount++;
+			}
+			if (jumpCount > maxJump || isGrounded == false) {
+				jumpSpeed = 0.0f;
+			}
+			if (jumpCount > maxJump && isGrounded == true) {
+				jumpSpeed = 0.0f;
+				jumpCount = 1;
+			}
+		} else 
 		{
-			transform.RotateAround (transform.position, transform.up, 180f);
-			rotate = false;
-		}
-		if (Input.GetKeyDown (KeyCode.LeftArrow) && rotate == false) 
-		{
-			transform.RotateAround(transform.position, transform.up, 180f);
-			rotate = true;
-		}
-		
-		var move = new Vector3 (Input.GetAxis ("Horizontal"), 0);
-		GetComponent<Rigidbody> ().position += move * speed * Time.deltaTime;
-		
-		if (Input.GetKeyDown (KeyCode.Space) && jumpCount < maxJump) 
-		{
-			GetComponent<Rigidbody> ().velocity += Vector3.up * jumpSpeed;
-			jumpCount++;
-		}
-		if (jumpCount > maxJump || isGrounded == false) 
-		{
-			jumpSpeed = 0.0f;
-		}
-		if (jumpCount > maxJump && isGrounded == true) 
-		{
-			jumpSpeed = 0.0f;
-			jumpCount = 1;
+			
+			if(Input.GetKeyDown (KeyCode.RightArrow)) {
+
+				rightArrow.GetComponent<MeshRenderer> ().material.color = Color.red;
+				
+			}
+			if  (Input.GetKeyUp (KeyCode.RightArrow)) {
+				rightArrow.GetComponent<MeshRenderer> ().material.color = Color.clear;
+			}
+			if (Input.GetKeyDown (KeyCode.LeftArrow)) {
+				leftArrow.GetComponent<MeshRenderer> ().material.color = Color.red;
+			}
+			if (Input.GetKeyUp (KeyCode.LeftArrow)) {
+
+				leftArrow.GetComponent<MeshRenderer> ().material.color = Color.clear;
+
+			}
+			
 		}
 		
 	}
@@ -73,13 +106,34 @@ public class PlayerMovement : MonoBehaviour {
 			jumpSpeed = 7.0f;
 		}
 	}
-	
+
 	void OnTriggerEnter(Collider other)
 	{
-		if (gameObject.tag == "Player") 
+		
+		if (other.tag == "StateSwitch") 
 		{
+			thisCam.transform.position = this.transform.position;
+			StaticVar.CamStop = true;
 			//StartCoroutine(respawn());
 		}
+	}
+	void OnTriggerExit(Collider other)
+	{
+
+		if (other.tag == "StateSwitch") 
+		{
+			StaticVar.CamStop = false;
+			StaticVar.leaveArea = true;
+			//StartCoroutine(respawn());
+		}
+	}
+		
+	IEnumerator Brawlerstage()
+	{
+		
+		yield return new WaitForSeconds (15f);
+		StaticVar.CamStop = false;
+		Controllertime = true;
 	}
 	
 //	IEnumerator respawn()

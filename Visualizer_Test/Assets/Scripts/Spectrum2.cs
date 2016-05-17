@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Spectrum : MonoBehaviour {
+public class Spectrum2 : MonoBehaviour {
 
 	public GameObject cubePrefab;
 	public int numberOfObjects;
 	public GameObject[] cubes;
-	public int spectrumScale = 16100;
+	public int spectrumScale = 100;
 	public float cubeSpacing = 2.0f;
 
 	// Use this for initialization
@@ -16,14 +16,14 @@ public class Spectrum : MonoBehaviour {
 
 		for (int i = 0; i < numberOfObjects; i++) 
 		{
-			cubes[i] = Instantiate (cubePrefab, new Vector3 (i * cubeSpacing, 0, 0), Quaternion.identity) as GameObject;
+			cubes[i] = Instantiate (cubePrefab, new Vector3 (i * cubeSpacing+201f, 0, 0), Quaternion.identity) as GameObject;
 		}
 
 
 	}
 
 
-	
+
 	// Update is called once per frame
 	void Update () 
 	{
